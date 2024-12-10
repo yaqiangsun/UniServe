@@ -31,7 +31,8 @@ DEFAULT_MODEL = MODELS_LIST["Qwen2-VL-7B"]
 class Qwen2VLServe(ls.LitAPI):
     def setup(self, device, model_id:str=DEFAULT_MODEL):
         if model_id not in MODELS_LIST.values():
-            raise ValueError(f"Invalid model ID: {model_id}")
+            return ls.LitError(f"Invalid model ID: {model_id}")
+            # raise ValueError(f"Invalid model ID: {model_id}")
 
         # quantization_config = BitsAndBytesConfig(
         #     load_in_4bit=True,
