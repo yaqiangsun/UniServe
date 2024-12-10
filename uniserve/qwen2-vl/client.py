@@ -36,6 +36,8 @@ def chat_request(prompt="图片中有什么？",image_url = f"file://XXXXXXXXXX.
                     {
                         "type": "image",
                         "image_url": image_url,
+                        "resized_height": 280,
+                        "resized_width": 420
                     },
                 ],
             }
