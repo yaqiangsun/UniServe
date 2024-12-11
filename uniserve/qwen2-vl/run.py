@@ -26,7 +26,18 @@ MODELS_LIST = {
 
 DEFAULT_MODEL = MODELS_LIST["Qwen2-VL-7B"]
 
-
+# Add exception handling to thread
+class ThreadWithExceptionHandling(Thread):
+    def __init__(self, target, args=(), kwargs=None):
+        super().__init__(target=target, args=args, kwargs=kwargs)
+        self.target = target
+        self.args = args
+        self.kwargs = kwargs if kwargs is not None else {}
+    def run(self):
+        try:
+            self.target(*self.args, **self.kwargs)
+        except Exception as e:
+            print(f"Exception in thread: {e}")
 
 class Qwen2VLServe(ls.LitAPI):
     def setup(self, device, model_id:str=DEFAULT_MODEL):
@@ -87,7 +98,7 @@ class Qwen2VLServe(ls.LitAPI):
             eos_token_id=self.processor.tokenizer.eos_token_id,
             **context["generation_args"],
         )
-        thread = Thread(target=self.model.generate, kwargs=generation_kwargs)
+        thread = ThreadWithExceptionHandling(target=self.model.generate, kwargs=generation_kwargs)
         thread.start()
         
         for text in self.streamer:
