@@ -78,6 +78,19 @@ class Qwen2VLServe(ls.LitAPI):
         messages = [
             message.model_dump(exclude_none=True) for message in request.messages
         ]
+
+        # add resized_height and resized_width to image
+        for message in (messages):
+            if message["role"] == "user":
+                for content_item in message["content"]:
+                    if content_item.get("type") == "image":
+                        content_item.update(
+                            {
+                                "resized_height": 280,
+                                "resized_width": 420
+                            }
+                        )
+
    
         text = self.processor.apply_chat_template(
             messages, tokenize=False, add_generation_prompt=True
