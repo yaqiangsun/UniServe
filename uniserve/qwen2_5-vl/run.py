@@ -105,8 +105,10 @@ class QwenVLAPI(ls.LitAPI):
         for text in self.streamer:
             yield text
 if __name__ == "__main__":
+    import qwen_specs
     api = QwenVLAPI(
-                    spec=ls.OpenAISpec(),
+                    # spec=ls.OpenAISpec(),
+                    spec=qwen_specs.OpenAISpec(),
                     # max_batch_size=4,        # 批处理提升吞吐量 但是需要修改解析形式
                     )
     server = ls.LitServer(api,

@@ -31,6 +31,26 @@ def image_to_base64(image_path):
         base64_string = base64_encoded_data.decode('utf-8')  # convert to utf-8 string
     return base64_string
 
+def parser_object_detection(result_str,image_path):
+    import re
+    pattern = r'```json\s*([\s\S]*?)\s*```'
+    match = re.search(pattern, result_str)
+    json_content = match.group(1).strip()
+
+    import json
+    result = json.loads(json_content)
+    print(colored(result, "green"))
+
+    import cv2
+
+    image_result = cv2.imread(image_path)
+    image_result = cv2.resize(image_result, (420,280))
+    for item in result:
+        bbox_2d = item["bbox_2d"]
+        label = item["label"]
+        cv2.rectangle(image_result, (bbox_2d[0], bbox_2d[1]), (bbox_2d[2], bbox_2d[3]), (0, 255, 0), 2)
+    cv2.imwrite("result.jpg", image_result)
+
 def chat_request(prompt="图片中有什么？",image_url = f"file://XXXXXXXXXX.jpg"):
 
     # image url as image input
@@ -62,11 +82,16 @@ def chat_request(prompt="图片中有什么？",image_url = f"file://XXXXXXXXXX.
         max_tokens=1024,
     )
     print(colored("Runing...", "yellow"))
+    result_str = ""
     for chunk in stream:
         print(colored(chunk.choices[0].delta.content or "", "green"), end="")
+        result_str += chunk.choices[0].delta.content or ""
+    print("\n")
+
+    parser_object_detection(result_str,image_path)
 
 if __name__ == "__main__":
-    prompt="Detect all objects in the image and return their locations in the form of coordinates. The format of output should be like {“bbox”: [x1, y1, x2, y2], “label”: the name of this object in Chinese}"
+    prompt="Detect all objects in the image and return their locations in the form of coordinates. The format of output should be like {'bbox': [x1, y1, x2, y2], 'label': the name of this object in English}"
     chat_request(prompt=prompt)
 
 
